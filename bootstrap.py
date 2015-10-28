@@ -1,80 +1,94 @@
 import os
+import string
+import random
 import hashlib
-import uuid
+import datetime
+import mimetypes
 
-from flask import Flask, request, redirect, url_for, json
+from bson.json_util import dumps
+
+from flask import Flask, request, send_from_directory
 from flask.ext.pymongo import PyMongo
 from werkzeug import secure_filename
 
-app = Flask(__name__)
+# CONF
 
-app.debug = True
-
+HOST = '0.0.0.0'
 UPLOAD_FOLDER = './files/'
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+SHARD_CHARS = string.letters + string.digits
+SHARD_NUMBER = 6
+SHARD_SIZE = 4
+HASH_BLOCKSIZE = 65536
+
+# INIT
+
+app = Flask(__name__)
+app.debug = True
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-MONGO_HOST = '10.0.3.7'
-app.config['MONGO_HOST'] = MONGO_HOST
+mimetypes.init()
 mongo = PyMongo(app)
 
-def file_extension(filename):
-    return filename.rsplit('.', 1)[1]
-
-def allowed_file(filename):
-    return '.' in filename and \
-           file_extension(filename) in ALLOWED_EXTENSIONS
+# METHODS
 
 def hash_file(file):
-    BLOCKSIZE = 65536
     hasher = hashlib.sha1()
-    buffer = file.read(BLOCKSIZE)
+    buffer = file.read(HASH_BLOCKSIZE)
     while len(buffer) > 0:
         hasher.update(buffer)
-        buffer = file.read(BLOCKSIZE)
+        buffer = file.read(HASH_BLOCKSIZE)
     return hasher.hexdigest()
 
+def get_shard_path():
+    shard = ''.join((random.choice(SHARD_CHARS)) for x in range(SHARD_NUMBER * SHARD_SIZE))
+    shard = [shard[i:i+SHARD_SIZE] for i in range(0, len(shard), SHARD_SIZE)]
+    return os.path.join(*shard)
+
 def save_file(file):
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_uuid = uuid.uuid1().urn[9:]
-        file_sharding = file_uuid.split('-')
-        file_path_list = [app.config['UPLOAD_FOLDER']] + file_sharding + [filename]
-        file_path = os.path.join(*file_path_list)
-        
-        parent_path = os.path.dirname(file_path)
-        if not os.path.exists(parent_path):
-            os.makedirs(parent_path)
-        file.save(file_path)
+    filename = secure_filename(file.filename)
+    shard_path = get_shard_path()
+    file_uri = os.path.join(shard_path, filename)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_uri)
+    file_folder = os.path.dirname(file_path)
+    
+    if not os.path.exists(file_folder):
+        os.makedirs(file_folder)
 
-        meta = {
-            'uuid': file_uuid,
-            'name':filename,
-            'path': file_path,
-            'sha224': hash_file(file)
-            # mime-type
-            # keywords
-        }
+    file.save(file_path)
 
-        # instance = mongo.db.files.insert_one(file_meta)
-        
-        # return instance
-        return meta
+    file_meta = {
+        'sha1': hash_file(file),
+        'name':filename,
+        'uri': file_uri,
+        'create_date': datetime.datetime.utcnow(),
+        'mime_type': mimetypes.guess_type(file_path)[0]
+    }
+
+    mongo.db.files.insert_one(file_meta)
+    return file_meta
+
+# ROUTES
 
 @app.route('/files/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         new_file = save_file(request.files['file'])
-        return json.jsonify(new_file)
+        return dumps(new_file)
 
     if request.method == 'GET':
         files = mongo.db.files.find()
-        return json.jsonify(files)
+        return dumps(files)
 
-@app.route('/files/<int:file_id>', methods=['GET'])
-def get_file(file_id):
-    return mongo.db.files.find_one({'id': file_id})
+@app.route('/files/<path:file_uri>', methods=['GET'])
+def get_file_data(file_uri):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], file_uri)
 
+@app.route('/files/<path:file_uri>/meta', methods=['GET'])
+def get_file(file_uri):
+    item = mongo.db.files.find_one({'uri': file_uri})
+    return dumps(item)
+
+# START!
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host=HOST)
