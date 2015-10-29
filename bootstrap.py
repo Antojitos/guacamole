@@ -14,6 +14,7 @@ from werkzeug import secure_filename
 # CONF
 
 HOST = '0.0.0.0'
+PORT= 5000
 UPLOAD_FOLDER = './files/'
 SHARD_CHARS = string.letters + string.digits
 SHARD_NUMBER = 6
@@ -91,4 +92,4 @@ def get_file(file_uri):
 # START!
 
 if __name__ == '__main__':
-    app.run(host=HOST)
+    app.run(host=HOST, port=PORT)
