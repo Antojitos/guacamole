@@ -20,6 +20,7 @@ SHARD_CHARS = string.letters + string.digits
 SHARD_NUMBER = 6
 SHARD_SIZE = 4
 HASH_BLOCKSIZE = 65536
+TAGS_SEPARATOR = ','
 
 # INIT
 
@@ -50,7 +51,14 @@ def get_file_size(file):
     file_size = file.tell()
     return file_size
 
-def save_file(file):
+def get_tags(tags_string):
+    tags = [tag.strip().lower() for tag in tags_string.split(TAGS_SEPARATOR)]
+    return tags
+
+def save_file():
+    file = request.files['file']
+    tags = get_tags(request.form['tags'])
+
     filename = secure_filename(file.filename)
     shard_path = get_shard_path()
     file_uri = os.path.join(shard_path, filename)
@@ -71,6 +79,9 @@ def save_file(file):
         'size': get_file_size(file)
     }
 
+    if tags:
+       file_meta['tags'] = tags
+
     mongo.db.files.insert_one(file_meta)
     return file_meta
 
@@ -79,7 +90,7 @@ def save_file(file):
 @app.route('/files/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        new_file = save_file(request.files['file'])
+        new_file = save_file()
         return dumps(new_file)
 
     if request.method == 'GET':
