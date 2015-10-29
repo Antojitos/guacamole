@@ -45,6 +45,11 @@ def get_shard_path():
     shard = [shard[i:i+SHARD_SIZE] for i in range(0, len(shard), SHARD_SIZE)]
     return os.path.join(*shard)
 
+def get_file_size(file):
+    file.seek(0, os.SEEK_END)
+    file_size = file.tell()
+    return file_size
+
 def save_file(file):
     filename = secure_filename(file.filename)
     shard_path = get_shard_path()
@@ -62,7 +67,8 @@ def save_file(file):
         'name':filename,
         'uri': file_uri,
         'create_date': datetime.datetime.utcnow(),
-        'mime_type': mimetypes.guess_type(file_path)[0]
+        'mime_type': mimetypes.guess_type(file_path)[0],
+        'size': get_file_size(file)
     }
 
     mongo.db.files.insert_one(file_meta)
