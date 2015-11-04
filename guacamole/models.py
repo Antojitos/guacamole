@@ -12,7 +12,8 @@ class File(object):
     """docstring for File"""
     def __init__(self, file, tags):
         self.file = file
-        self.tags = get_tags(tags)
+        if tags:
+            self.tags = get_tags(tags)
         self.name = secure_filename(file.filename)
         self.uri = os.path.join(generate_sharded_path(), self.name)
         self.hash = hash_file(file),

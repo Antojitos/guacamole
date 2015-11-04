@@ -7,8 +7,8 @@ from guacamole.models import File
 def index():
     if request.method == 'POST':
         item = File(
-            file=request.files['file'],
-            tags=request.form['tags'])
+            file=request.files.get('file'),
+            tags=request.form.get('tags'))
         item.save()
         return dumps(item.get_meta())
 
