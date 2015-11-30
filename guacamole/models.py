@@ -12,7 +12,6 @@ class File(object):
     """docstring for File"""
     def __init__(self, file, tags):
         self.file = file
-        # import ipdb; ipdb.set_trace()
         if tags:
             self.tags = get_tags(tags)
         self.name = secure_filename(file.filename)
