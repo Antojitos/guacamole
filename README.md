@@ -19,10 +19,11 @@ or using [gunicorn](http://gunicorn.org/):
 
 #### Endpoint 
 `POST /files/`
-
-parameter|type|required
-file|file|yes
-tags|string|no
+	
+  Parameter   |    Type    | Required
+------------- | ---------- | --------
+    file      |    file    |   yes
+    tags      |   string   |   no
 
 #### Example
 
@@ -52,8 +53,9 @@ tags|string|no
 #### Endpoint 
 `GET /files/{uri}`
 
-parameter|type|required
-uri|string|yes
+  Parameter   |    Type    | Required
+------------- | ---------- | --------
+     uri      |   string   |   yes
 
 #### Example
 
