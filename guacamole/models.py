@@ -3,7 +3,7 @@ import os
 from copy import copy
 from werkzeug import secure_filename
 from guacamole import app, db_client
-from guacamole.tools import generate_sharded_path, get_tags, hash_file, get_file_size, get_time, get_mimetype
+from guacamole.tools import generate_sharded_path, get_tags, hash_file, get_file_size, get_time, get_mimetype, reset_file
 
 
 class File(object):
@@ -12,7 +12,9 @@ class File(object):
     """docstring for File"""
     def __init__(self, file, tags):
         self.file = file
-        self.tags = get_tags(tags)
+        # import ipdb; ipdb.set_trace()
+        if tags:
+            self.tags = get_tags(tags)
         self.name = secure_filename(file.filename)
         self.uri = os.path.join(generate_sharded_path(), self.name)
         self.hash = hash_file(file),
@@ -34,12 +36,13 @@ class File(object):
         self.save_to_db()
 
     def save_to_disk(self):
-        file_path = os.path.join(app.config['UPLOAD_DIR'], self.uri)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], self.uri)
         file_folder = os.path.dirname(file_path)
         
         if not os.path.exists(file_folder):
             os.makedirs(file_folder)
 
+        reset_file(self.file)
         self.file.save(file_path)
 
     def save_to_db(self):
