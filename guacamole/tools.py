@@ -6,6 +6,9 @@ import mimetypes
 
 from guacamole import app
 
+def reset_file(file):
+    file.stream.seek(0)
+
 def get_tags(tags_string):
     tags = [tag.strip().lower() for tag in tags_string.split(app.config['TAGS_SEPARATOR'])]
     return tags
@@ -17,17 +20,21 @@ def get_mimetype(file_path):
     mimetypes.init()    
     return mimetypes.guess_type(file_path)[0]
 
+def rewind_file(file):
+    file.seek(0, os.SEEK_END)
+
 def hash_file(file):
     hasher = hashlib.sha1()
     buffer = file.read(app.config['HASH_BLOCKSIZE'])
     while len(buffer) > 0:
         hasher.update(buffer)
         buffer = file.read(app.config['HASH_BLOCKSIZE'])
+    rewind_file(file)
     return hasher.hexdigest()
 
 def get_file_size(file):
-    file.seek(0, os.SEEK_END)
     file_size = file.tell()
+    rewind_file(file)
     return file_size
 
 def generate_sharded_path():

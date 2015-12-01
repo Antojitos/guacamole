@@ -6,9 +6,7 @@ from guacamole.models import File
 @app.route('/files/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        item = File(
-            file=request.files.get('file'),
-            tags=request.form.get('tags'))
+        item = File(request.files.get('file'), request.form.get('tags'))
         item.save()
         return dumps(item.get_meta())
 
@@ -18,7 +16,7 @@ def index():
 
 @app.route('/files/<path:file_uri>', methods=['GET'])
 def get_file_data(file_uri):
-    return send_from_directory(app.config['UPLOAD_DIR'], file_uri)
+    return send_from_directory(app.config['UPLOAD_FOLDER'], file_uri)
 
 @app.route('/files/<path:file_uri>/meta', methods=['GET'])
 def get_file(file_uri):
