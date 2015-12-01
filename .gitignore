@@ -2,4 +2,7 @@
 __pycache__/
 *.py[cod]
 
+# Distribution / packaging
+*.egg-info/
+
 files/

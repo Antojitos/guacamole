@@ -99,4 +99,4 @@ uri|string|yes
 
 ## Tests
 
-`python tests/main.py`
+`python setup.py test`
