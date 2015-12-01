@@ -1,5 +1,4 @@
 from setuptools import setup
-from setuptools.command.test import test
 
 with open('README.md') as file:
     long_description = file.read()
