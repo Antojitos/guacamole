@@ -1,6 +1,5 @@
 from setuptools import setup
 
-
 with open('README.md') as file:
     long_description = file.read()
 
@@ -32,4 +31,6 @@ setup(
         'Flask==0.10.1',
         'Flask-PyMongo==0.4.0',
     ],
+
+    test_suite='tests.main'
 )
