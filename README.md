@@ -1,4 +1,5 @@
-# guacamole
+# guacamole ![Build Status](https://travis-ci.org/Antojitos/guacamole.svg?branch=master)
+
 Upload any file, get a URL back.
 
 ## Installation
