@@ -1,0 +1,4 @@
+---
+- include: database.yml
+- include: webserver.yml
+- include: webapp.yml
