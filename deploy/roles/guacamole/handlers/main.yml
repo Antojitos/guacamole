@@ -1,0 +1,9 @@
+---
+- name: reload supervisor
+  command: supervisorctl update
+
+- name: reload nginx
+  service: name=nginx state=reloaded
+
+- name: restart mongodb
+  service: name=mongodb state=restarted

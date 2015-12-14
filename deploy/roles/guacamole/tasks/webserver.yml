@@ -1,0 +1,13 @@
+---
+# Install and configure nginx
+
+- name: install nginx server
+  apt: name=nginx-full state=present
+
+- name: create configuration file for guacamole site
+  template: src=nginx-guacamole.site.j2 dest=/etc/nginx/sites-available/{{ guacamole_server_name }}
+  notify: reload nginx
+
+- name: enable guacamole site
+  file: src=/etc/nginx/sites-available/{{ guacamole_server_name }} dest=/etc/nginx/sites-enabled/{{ guacamole_server_name }} state=link
+  notify: reload nginx

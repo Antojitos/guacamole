@@ -1,0 +1,9 @@
+---
+# Install and configure MongoDB server
+
+- name: install mongodb server
+  apt: name=mongodb-server state=present
+
+- name: configure mongodb
+  lineinfile: dest=/etc/mongodb.conf regexp=^smallfiles= line=smallfiles=true
+  notify: restart mongodb

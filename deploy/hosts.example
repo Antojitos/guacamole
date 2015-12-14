@@ -1,0 +1,5 @@
+[servers]
+web1.example.com
+
+[servers:vars]
+guacamole_server_name=guacamole.example.com

@@ -1,0 +1,10 @@
+---
+# Variables listed here are applicable to all host groups
+
+guacamole_server_name: guacamole.example.com
+guacamole_version: master
+guacamole_base_dir: /var/lib/guacamole
+
+gunicorn_host: 127.0.0.1
+gunicorn_port: 8000
+gunicorn_workers: 4

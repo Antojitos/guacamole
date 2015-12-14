@@ -1,0 +1,11 @@
+[program:guacamole]
+command = gunicorn -b {{ gunicorn_host }}:{{ gunicorn_port }} -w {{ gunicorn_workers }} guacamole:app
+environment = CONFIG="/etc/guacamole/config.py"
+directory = {{ guacamole_base_dir }}
+
+autostart = true
+autorestart = true
+
+redirect_stderr = False
+stdout_logfile = /var/log/supervisor/guacamole_stdout.log
+stderr_logfile = /var/log/supervisor/guacamole_stderr.log

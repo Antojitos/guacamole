@@ -1,7 +1,8 @@
 import string
 import os
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))  
+BASE_DIR = os.path.abspath(os.path.join(
+                           os.path.dirname(__file__), '..'))
 
 HOST = '0.0.0.0'
 PORT= 5000
