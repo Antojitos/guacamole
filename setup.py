@@ -28,7 +28,7 @@ setup(
 
     packages=['guacamole'],
     install_requires=[
-        'Flask==0.12.3',
+        'Flask==2.2.5',
         'Flask-PyMongo==0.4.0',
     ],
 
